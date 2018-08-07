@@ -1,0 +1,210 @@
+---
+title: '111'
+author: "Yu Zhu 914480813"
+date: "3/16/2018"
+output: html_document
+---
+
+
+```{r}
+library(gdata)
+survival_sparrow <- read.xls("~/Desktop/davis/207/untitled folder/survival_sparrow.xls")
+mydata = survival_sparrow
+
+# data processing
+mydata$STATUS[mydata$STATUS == 'Perished'] <- 0
+mydata$STATUS[mydata$STATUS == 'Survived'] <- 1
+mydata$STATUS = as.numeric(mydata$STATUS)
+mydata[3:11] = scale(mydata[3:11])
+```
+
+```{r}
+# data summary
+summary(mydata)
+sapply(mydata, sd)
+cor(mydata)
+# data plot descriptions
+
+```
+
+```{r}
+## histogram
+#hist(mydata$TL)
+#hist(mydata$AE)
+#hist(mydata$WT)
+#hist(mydata$BH)
+#hist(mydata$HL)
+
+## pie chart
+#pie(table(mydata$STATUS))
+## scattor plot
+plot(mydata)
+```
+
+```{r}
+# s plot
+#newdata = mydata[order(mydata$TL), ]
+#newdata
+#flag = 0
+#m = 0
+#tot = 0
+#index = 1
+#mat <- matrix(ncol=2, nrow=10)
+#for (i in 1:80) {
+#  if (flag != 8) {
+#    tot = tot + newdata$TL[i];
+#    if (newdata$STATUS[i] == 0) {
+#      m = m+1
+#    }
+#    flag = flag + 1;
+#  }
+#  else {
+#    p = m/8;
+#    p;
+#    avg = tot/8;
+#    avg;
+#    mat[index,] <- c(p,avg);
+#    index = index + 1;
+#    flag = 0;
+#    # clear m and avg
+#    m = 0;
+#    tot = 0;
+#    
+#    # calc m and avg
+#    tot = tot + newdata$TL[i];
+##    if (newdata$STATUS[i] == 0) {
+#      m = m+1
+      # calc m and avg
+#    }
+#    flag = flag + 1;
+#  }
+#}
+#p = m/8;
+#p;
+#avg = tot/8;
+#avg;
+#mat[index,] <- c(p,avg);
+#mat
+#plot(mat[,2],mat[,1])
+
+```
+
+
+```{r}
+
+# fit model
+mylogit <- glm(STATUS~., data = mydata, family = binomial)
+summary(mylogit)
+
+##  linear model resonable test
+qchisq(0.95,76)
+### chi > resid dev, so it's reasonable
+
+# model plots (fitted vs residuals/qqnorm/outliers)
+plot(mylogit)
+
+# vif
+library('car')
+vif(mylogit)
+
+# model hypothesis
+confint.default(mylogit)
+
+## fitted vs residuals
+library('ggplot2')
+qplot(y = mylogit$residuals, x = mylogit$fitted.values) +
+  stat_smooth(method = "loess", span = 0.1)
+
+## qqnorm
+qqnorm(mylogit$fitted.values)
+qqline(mylogit$fitted.values)
+
+# fit second order model
+mylogit <- glm(STATUS~.^2, data = mydata, family = binomial)
+summary(mylogit)
+
+# test if FL,TT can be dropped
+# reduced model:delete FL,TT
+redmylog = glm(STATUS~.-FL-TT, data = mydata, family = binomial)
+summary(redmylog)
+
+Gs2 = redmylog$deviance - mylogit$deviance; Gs2
+
+## H0: βfl = βtt = 0;
+## H1: not both βfl,βtt = 0;
+qchisq(0.95,2) 
+## we can reject h0 if Gs2 > chi square
+## since Gs2 < 5.991465, we cannot reject H0 at 0.05 significant level.
+### we can drop FL, TT
+
+# test if AG can be dropped 
+## H0: βag = 0;
+## H1: βag ≠ 0;
+## Z* = 0.154
+Z = qnorm(0.975)
+## we can reject H0 if Z* > Z
+## Since Z* < Z, we cannot reject H0 at 0.05 significant level.
+## P-value = 0.877529
+### we can drop AG
+
+# the model after AG is dropped
+redmylog2 = glm(STATUS~.-FL-TT-AG, data = mydata, family = binomial)
+summary(redmylog2)
+
+# test if AE can be dropped 
+## H0: βae = 0;
+## H1: βae ≠ 0;
+## Z* = 0.764
+Z = qnorm(0.975)
+## we can reject H0 if Z* > Z
+## Since Z* < Z, we cannot reject H0 at 0.05 significant level.
+## P-value = 0.44482 
+### we can drop AE
+
+# the model after AE is dropped
+redmylog3 = glm(STATUS~.-FL-TT-AG-AE, data = mydata, family = binomial)
+summary(redmylog3)
+
+
+
+step(mylogit)
+
+firstmymodel = glm(formula = STATUS ~ TL + WT + HL + KL, family = binomial, 
+    data = mydata)
+
+c = data.frame(mydata$STATUS,mydata$TL,mydata$WT,mydata$HL,mydata$KL)
+TL2 = (mydata$TL)^2
+WT2 = (mydata$WT)^2
+HL2 = (mydata$HL)^2
+KL2 = (mydata$KL)^2
+TLWT = (mydata$TL)*(mydata$WT)
+TLHL = (mydata$TL)*(mydata$HL)
+TLKL = (mydata$TL)*(mydata$KL)
+WTHL = (mydata$WT)*(mydata$HL)
+WTKL = (mydata$WT)*(mydata$KL)
+HLKL = (mydata$HL)*(mydata$KL)
+secondmymodel =  glm(formula = STATUS~TL+WT+HL+KL+TLWT+TLHL+TLKL+WTHL+WTKL+HLKL+TL2+WT2+HL2+KL2, family = binomial, 
+                     data = mydata)
+summary(secondmymodel)
+
+# set this model as full model
+model.full = secondmymodel
+model.full
+# step AIC forward
+model.null = glm(STATUS ~ 1, 
+                 data=mydata,
+                 family = binomial(link="logit")
+)
+
+step(model.null,
+     scope = list(upper=model.full),
+     direction="forward",
+     k = 2,
+     data = mydata)
+
+# final model
+final = glm(formula = STATUS ~ TL + HL + WT + KL, family = binomial(link = "logit"), 
+            data = mydata)
+summary(final)
+plot(final)
+```

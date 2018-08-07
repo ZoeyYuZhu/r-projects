@@ -1,0 +1,44 @@
+---
+title: "prove"
+author: "Yu Zhu 914480813"
+date: "5/29/2018"
+output: html_document
+---
+
+# 3
+Proof:
+$$
+\begin{aligned}
+E||y - \hat f_{\lambda}||^2 &= E||(I-H_{\lambda})y||^2 \\
+&= E tr[(I-H_{\lambda}y)'(I-H_{\lambda}y)]\\
+&= tr[(I-H_{\lambda}y)'E(yy')(I-H_{\lambda}y)]\\
+&= f'(I-H_{\lambda})'(I-H_{\lambda})f+tr[\sigma^2(I-H_{\lambda})(I-H_{\lambda})']\\
+&= ||(I-H_{\lambda})f||^2 + \sigma^2\{ tr(H_{\lambda}'H_{\lambda}) - 2tr(H_{\lambda}) + tr(I)\}\\
+&= ||(I-H_{\lambda})f||^2 + \sigma^2\{ tr(H_{\lambda}H_{\lambda}') - 2tr(H_{\lambda}) + n\}\\
+\end{aligned}
+$$
+Furthermore,
+$$
+\begin{aligned}
+E||f - \hat f_{\lambda}||^2 &= E||f-y+y-H_{\lambda}y||^2\\
+&= E||f-y||^2 - 2E(y-f)'(y-H_{\lambda}y) + E||y-H_{\lambda}y||^2\\
+&= n\sigma^2 - 2E\epsilon'(I - H_{\lambda}y)\epsilon + E||y-H_{\lambda}y||^2\\
+&= n\sigma^2 - 2tr(I - H_{\lambda}y)\sigma^2 + E||y-H_{\lambda}y||^2\\
+&= E||y-\hat f_{\lambda}||^2 + \{2tr(H_{\lambda})-n\}\sigma^2
+\end{aligned}
+$$
+
+
+
+
+
+So $||f - \hat f_{\lambda}||^2 + \{2tr(H_{\lambda})-n\}\sigma^2$ is the unbiased estimator of risk($\lambda$).
+
+To implement this method, we use the estimator of $\sigma^2$ : $\hat \sigma^2 = min CV(\lambda)$. Simulation steps are similar. The details are shown in code.
+
+
+
+
+
+
+

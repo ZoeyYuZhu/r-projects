@@ -1,0 +1,80 @@
+---
+title: '1'
+author: "Yu Zhu 914480813"
+date: "6/2/2018"
+output: html_document
+---
+# 4.
+## a.
+$$
+L(\lambda|Xn) = f(Xn|\lambda) = \lambda^ne^{-\lambda\sum xi}\\
+logL = nlog\lambda -\lambda\sum xi\\
+\frac{\partial logL}{\partial \lambda} = \frac{n}{\lambda} - \sum xi = 0\\
+\hat\lambda_{MLE} = \frac{n}{X1+X2+...+Xn}
+$$
+
+## b.
+### part 1.
+from central limit theorem:
+$$
+\sqrt n (\frac{\bar x - 1/\lambda}{1/\lambda}) \overset{\mathcal{D}}{\rightarrow} N(0,1)
+$$
+so
+$$
+\sqrt n (\lambda\bar x - 1)  \overset{\mathcal{D}}{\rightarrow} N(0,1)
+$$
+since normal distribution is symmetric in 0,
+$$
+\sqrt n ( 1 -\lambda\bar x)  \overset{\mathcal{D}}{\rightarrow} N(0,1)
+$$
+with $\hat\lambda_{n} = \frac{n}{\sum xi} = \frac{1}{\bar x}$
+$$
+\sqrt n (\frac{\hat\lambda_{n} -\lambda}{\hat\lambda_{n}} )  \overset{\mathcal{D}}{\rightarrow} N(0,1)
+$$
+according to Sluskey's Theorem,
+$$
+\sqrt n (\hat\lambda_{n} -\lambda )  \overset{\mathcal{D}}{\rightarrow} N(0,\lambda^2)
+$$
+
+### part 2.
+
+since
+$$
+\sqrt n (\hat\lambda_{n} - \lambda) \overset{\mathcal{D}}{\rightarrow} N(0,\lambda^2)\\
+$$
+by Delta-method,
+let g(t) = log(t),
+g'(t) = $\frac{1}{t}$,
+so
+$$
+\sqrt n (log\hat\lambda_{n} - log\lambda) \overset{\mathcal{D}}{\rightarrow} N(0,(g'(\lambda))^2\lambda^2) = N(0,\frac{1}{\lambda^2}\lambda^2) = N(0,1)\\
+$$
+
+## c.
+as $n \rightarrow \infty$,
+
+$$
+P_{\lambda}[-Z(\alpha/2) \le {\sqrt n (log\hat\lambda_{n} - log\lambda)} \le Z(\alpha/2)] \rightarrow  1-\alpha \\
+log\lambda \ge log\hat\lambda_{n} - Z(\alpha/2)／\sqrt n\\
+log\lambda \le log\hat\lambda_{n} + Z(\alpha/2)／\sqrt n\\
+\lambda \ge \hat\lambda_{n}e^{- Z(\alpha/2)／\sqrt n}\\
+\lambda \le \hat\lambda_{n}e^{ Z(\alpha/2)／\sqrt n}\\
+$$
+so a 100(1 − α)% asymptotic confidence interval  for $\lambda$ is $(\hat\lambda_{n}e^{- Z(\alpha/2)／\sqrt n},\hat\lambda_{n}e^{ Z(\alpha/2)／\sqrt n})$
+
+## d.
+$$
+\lambda \sum xi \sim Gamma(n,1)
+$$
+Therefore,
+$$
+P_{\lambda}[G^{-1}(\alpha/2) \le \lambda \sum xi \le G^{-1}(1-\alpha/2)] \rightarrow  1-\alpha \\
+(n/\sum xi)  G^{-1}(\alpha/2)/n \le \lambda \le (n/\sum xi)  G^{-1}(1-\alpha/2)/n\\
+ \hat\lambda_{n} G^{-1}(\alpha/2)/n \le \lambda \le \hat\lambda_{n} G^{-1}(1-\alpha/2)/n
+$$
+
+so an exact confidence interval for $\lambda$ is given by
+
+$$
+ (\hat\lambda_{n} G^{-1}(\alpha/2)/n , \hat\lambda_{n} G^{-1}(1-\alpha/2)/n)
+$$
